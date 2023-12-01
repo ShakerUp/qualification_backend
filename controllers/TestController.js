@@ -46,6 +46,7 @@ export const create = async (req, res) => {
 export const getAll = async (req, res) => {
   try {
     const { category } = req.query;
+    console.log(category);
 
     let query = {};
     if (category && category !== '0') {
@@ -131,7 +132,7 @@ export const submit = async (req, res) => {
 
 export const userResult = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization;
 
     if (!token) {
       return res.status(401);

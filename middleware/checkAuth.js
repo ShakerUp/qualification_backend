@@ -5,7 +5,9 @@ dotenv.config();
 const secretKey = process.env.JWT_SECRET_KEY;
 
 const authMiddleware = (allowedRoles) => async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.headers.authorization;
+
+  console.log(token);
 
   if (!token) {
     return res.status(401).json({ error: 'Токен отсутствует' });

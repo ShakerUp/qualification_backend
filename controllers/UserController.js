@@ -64,7 +64,7 @@ export const login = async (req, res) => {
 };
 
 export const checkMe = async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.headers.authorization;
 
   if (!token) {
     return res.json({ isAuthenticated: false });
