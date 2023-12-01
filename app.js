@@ -21,7 +21,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log('Соединение с MongoDB успешно установлено');
+    console.log('Соединение с MongoDB установлено');
   })
   .catch((err) => {
     console.error('Ошибка при подключении к MongoDB', err);
@@ -39,4 +39,4 @@ app.listen(port, () => {
   }
 });
 
-console.log()
+console.log();
