@@ -82,7 +82,7 @@ export const getTestQuestions = async (req, res) => {
 
 export const submit = async (req, res) => {
   const testId = req.params.testId;
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.headers.authorization;
   const userAnswers = req.body.answers;
 
   try {
