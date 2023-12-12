@@ -78,7 +78,7 @@ export const checkMe = async (req, res) => {
       return res.json({ isAuthenticated: false });
     }
 
-    res.json({ isAuthenticated: true, role: req.userRole });
+    res.json({ isAuthenticated: true, role: req.userRole, username: req.userName });
   } catch (err) {
     res.json({ isAuthenticated: false });
   }
@@ -98,6 +98,24 @@ export const promoteUser = async (req, res) => {
     res.json({ message: 'User promoted successfully', user });
   } catch (error) {
     console.error('Error promoting user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const assignForm = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { form } = req.body;
+
+    const user = await UserModel.findByIdAndUpdate(userId, { form: form }, { new: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'Form is given successfully', user });
+  } catch (error) {
+    console.error('Error giving form to user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

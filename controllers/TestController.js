@@ -46,7 +46,6 @@ export const create = async (req, res) => {
 export const getAll = async (req, res) => {
   try {
     const { category } = req.query;
-    console.log(category);
 
     let query = {};
     if (category && category !== '0') {
@@ -65,7 +64,6 @@ export const getTestQuestions = async (req, res) => {
   try {
     const testId = req.params.testId;
     const test = await TestModel.findById(testId);
-    console.log(test.testName);
 
     const questions = await QuestionModel.find({ testId }).select('-correctAnswer');
 

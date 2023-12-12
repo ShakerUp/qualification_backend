@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['user', 'admin', 'teacher'], default: 'user' },
     name: { type: String, required: true },
     surname: { type: String, required: true },
+    form: { type: String },
   },
   {
     timestamps: true,

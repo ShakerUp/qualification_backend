@@ -14,5 +14,6 @@ router.post('/login', loginValidation, handleValidationErrors, UserController.lo
 router.get('/check', checkAuth(['user', 'admin', 'teacher']), UserController.checkMe);
 router.get('/getAllUsers', checkAuth(['admin']), UserController.getAll);
 router.put('/users/:userId/promote', checkAuth(['admin']), UserController.promoteUser);
+router.put('/users/:userId/assignForm', checkAuth(['admin']), UserController.assignForm)
 
 export default router;
