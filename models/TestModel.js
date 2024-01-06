@@ -6,6 +6,9 @@ const testSchema = new mongoose.Schema(
     category: { type: Number, required: true },
     showCorrectAnswers: { type: Boolean, required: true },
     description: { type: String },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    numberOfQuestions: { type: Number, required: true },
+    timesDone: { type: Number, required: true },
   },
   { timestamps: true },
 );

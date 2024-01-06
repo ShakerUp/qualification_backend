@@ -16,6 +16,8 @@ router.post(
   TestController.create,
 );
 router.get('/alltests', checkAuth(['user', 'admin', 'teacher']), TestController.getAll);
+router.get('/teachers-test', checkAuth(['admin', 'teacher']), TestController.teacherTests);
+router.get('/teachers-results', checkAuth(['admin', 'teacher']), TestController.teacherResults);
 router.get(
   '/:testId/questions',
   checkAuth(['user', 'admin', 'teacher']),
