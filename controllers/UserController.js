@@ -15,9 +15,9 @@ export const register = async (req, res) => {
       return res.status(404).json({ error: 'Пользователь с таким именем уже существует' });
     }
 
-    // if (role === 'admin') {
-    //     return res.status(400).json({ error: 'Регистрация пользователей с ролью "admin" запрещена' });
-    // }
+    if (role === 'admin') {
+        return res.status(400).json({ error: 'Регистрация пользователей с ролью "admin" запрещена' });
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
