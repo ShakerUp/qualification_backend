@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Устанавливаем зависимости
-RUN npm install
+RUN npm install --no-cache
 
 # Копируем остальные файлы приложения
 COPY . .
