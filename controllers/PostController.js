@@ -1,4 +1,4 @@
-import PostModel from '../models/Post.js';
+import PostModel from '../models/PostModel.js';
 
 export const getAll = async (req, res) => {
   try {
@@ -8,6 +8,27 @@ export const getAll = async (req, res) => {
     res.status(500).json({
       error: 'Unable to get posts',
     });
+  }
+};
+
+export const getTeacherPosts = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
+
+    const posts = await PostModel.find({ userId }).populate('userId').exec();
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: 'No tests found for this teacher' });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -56,12 +77,13 @@ export const create = async (req, res) => {
       title: req.body.title,
       text: req.body.text,
       imageUrl: req.body.imageUrl,
-      user: req.userId,
+      userId: req.userId,
     });
 
     res.json(newPost);
   } catch (error) {
     res.status(500).json({ error: 'Unbale to create post' });
+    console.log(error);
   }
 };
 
@@ -104,7 +126,6 @@ export const update = async (req, res) => {
         title: req.body.title,
         text: req.body.text,
         imageUrl: req.body.imageUrl,
-        tags: req.body.tags,
         user: req.userId,
       },
     );

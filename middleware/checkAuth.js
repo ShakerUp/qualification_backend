@@ -33,6 +33,7 @@ const authMiddleware = (allowedRoles) => async (req, res, next) => {
     req.userRole = user.role;
     req.userId = _id;
     req.userName = user.username;
+    req.fullName = `${user.name} ${user.surname}`;
     next();
   } catch (err) {
     res.status(401).json({ error: 'Неверный токен' });

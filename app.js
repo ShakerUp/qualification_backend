@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
 import testRoutes from './routes/testRoutes.js';
+import postRoutes from './routes/postRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -30,6 +31,7 @@ mongoose
 app.use('/auth', authRoutes);
 app.use('/library', bookRoutes);
 app.use('/tests', testRoutes);
+app.use('/posts', postRoutes);
 
 app.listen(port, () => {
   try {

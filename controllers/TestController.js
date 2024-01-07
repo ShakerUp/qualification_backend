@@ -98,19 +98,22 @@ export const submit = async (req, res) => {
 
       if (userAnswer !== undefined) {
         if (question.questionType === 'multiplechoice') {
-          if (userAnswer === question.correctAnswer) {
+          if (userAnswer[0] === question.correctAnswer[0]) {
             correctAnswers++;
           }
         } else if (question.questionType === 'openquestion') {
-          if (userAnswer.trim().toLowerCase() === question.correctAnswer[0].trim().toLowerCase()) {
+          if (
+            userAnswer[0].trim().toLowerCase() === question.correctAnswer[0].trim().toLowerCase()
+          ) {
             correctAnswers++;
+            console.log('open');
           }
         } else if (question.questionType === 'multipleanswer') {
           const userSelectedOptions = userAnswer || [];
           const correctOptions = question.correctAnswer || [];
-
           if (arraysEqual(userSelectedOptions, correctOptions)) {
             correctAnswers++;
+            console.log('answers');
           }
         }
       }
@@ -132,6 +135,7 @@ export const submit = async (req, res) => {
       correctAnswers,
       totalQuestions,
       mark,
+      userAnswers,
     });
 
     res.json({
@@ -145,9 +149,14 @@ export const submit = async (req, res) => {
   }
 };
 
-// Helper function to check if two arrays are equal
 function arraysEqual(arr1, arr2) {
-  return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
+  const sortedArr1 = arr1.slice().sort();
+  const sortedArr2 = arr2.slice().sort();
+
+  return (
+    sortedArr1.length === sortedArr2.length &&
+    sortedArr1.every((value, index) => value === sortedArr2[index])
+  );
 }
 
 export const userResult = async (req, res) => {
@@ -187,7 +196,7 @@ export const getCorrectAnswers = async (req, res) => {
     if (!test) {
       return res.status(404).json({ error: 'Server error' });
     }
-    if (test.showCorrectAnswers == false) {
+    if (test.showCorrectAnswers === false && req.userRole === 'user') {
       return res.json({ testName: 'Correct answers are not allowed for this test.' });
     }
 
@@ -199,6 +208,7 @@ export const getCorrectAnswers = async (req, res) => {
       questions,
       testName: test.testName,
       description: test.description,
+      fullName: req.fullName,
     });
   } catch (error) {
     console.error('Error fetching questions:', error);
@@ -251,8 +261,6 @@ export const teacherResults = async (req, res) => {
     if (!testResults || testResults.length === 0) {
       return res.status(404).json({ message: "No results found for this teacher's tests" });
     }
-
-    // Fetch user details for each test result
     const userResults = await Promise.all(
       testResults.map(async (testResult) => {
         const userId = testResult.userId;
@@ -260,10 +268,12 @@ export const teacherResults = async (req, res) => {
 
         return {
           _id: testResult._id,
+          testId: testResult.testId,
           testName: testResult.testName,
           userName: `${user.name} ${user.surname}`,
           createdAt: testResult.createdAt,
           mark: testResult.mark,
+          userAnswers: testResult.userAnswers,
         };
       }),
     );

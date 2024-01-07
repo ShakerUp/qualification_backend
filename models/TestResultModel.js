@@ -9,6 +9,7 @@ const testResultSchema = new mongoose.Schema(
     correctAnswers: { type: Number, required: true },
     totalQuestions: { type: Number, required: true },
     mark: { type: Number, required: true },
+    userAnswers: { type: mongoose.Schema.Types.Mixed, required: true },
   },
   {
     timestamps: true,
