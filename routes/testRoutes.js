@@ -30,5 +30,6 @@ router.get(
   checkAuth(['user', 'admin', 'teacher']),
   TestController.getCorrectAnswers,
 );
+router.delete('/delete/:testId', checkAuth(['admin', 'teacher']), TestController.deleteTest);
 
 export default router;

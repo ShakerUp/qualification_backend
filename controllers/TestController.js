@@ -284,3 +284,28 @@ export const teacherResults = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+export const deleteTest = async (req, res) => {
+  try {
+    const testId = req.params.testId;
+    const userId = req.userId;
+
+    // Check if the user is the owner of the test
+    const test = await TestModel.findOne({ _id: testId, userId });
+
+    if (!test || test.userId != userId) {
+      return res
+        .status(404)
+        .json({ message: 'Test not found or you do not have permission to delete it' });
+    }
+
+    await QuestionModel.deleteMany({ testId });
+    await TestModel.findByIdAndDelete(testId);
+    // await TestResultModel.deleteMany({ testId });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting test:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

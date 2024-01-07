@@ -78,6 +78,7 @@ export const create = async (req, res) => {
       text: req.body.text,
       imageUrl: req.body.imageUrl,
       userId: req.userId,
+      succes: true,
     });
 
     res.json(newPost);
