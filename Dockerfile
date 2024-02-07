@@ -14,7 +14,7 @@ RUN npm install --no-cache && npm install -g npm@7
 COPY . .
 
 # Устанавливаем переменную среды PORT
-ENV PORT 3000
+ENV PORT 500
 
 # Открываем порт, который будет слушать ваше приложение
 EXPOSE $PORT
