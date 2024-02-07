@@ -11,7 +11,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 
 export const create = async (req, res) => {
   try {
-    const { testName, showCorrectAnswers, questions, category, description } = req.body;
+    const { testName, showCorrectAnswers, questions, category, description, timeLimit } = req.body;
 
     const newTest = await TestModel.create({
       testName,
@@ -21,6 +21,7 @@ export const create = async (req, res) => {
       userId: req.userId,
       numberOfQuestions: questions.length,
       timesDone: 0,
+      timeLimit,
     });
 
     const questionPromises = questions.map(async (questionData) => {
@@ -74,6 +75,28 @@ export const getTestQuestions = async (req, res) => {
       questions,
       testName: test.testName,
       description: test.description,
+      timeLimit: test.timeLimit,
+    });
+  } catch (err) {
+    console.error('Error fetching questions:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const getTestDetails = async (req, res) => {
+  try {
+    const testId = req.params.testId;
+    const test = await TestModel.findById(testId);
+
+    const questions = await QuestionModel.find({ testId });
+
+    res.json({
+      questions,
+      testName: test.testName,
+      description: test.description,
+      timeLimit: test.timeLimit,
+      category: test.category,
+      showCorrectAnswers: test.showCorrectAnswers,
     });
   } catch (err) {
     console.error('Error fetching questions:', err);
@@ -103,7 +126,7 @@ export const submit = async (req, res) => {
           }
         } else if (question.questionType === 'openquestion') {
           if (
-            userAnswer[0].trim().toLowerCase() === question.correctAnswer[0].trim().toLowerCase()
+            userAnswer[0]?.trim().toLowerCase() === question.correctAnswer[0]?.trim().toLowerCase()
           ) {
             correctAnswers++;
             console.log('open');
@@ -185,12 +208,12 @@ export const getCorrectAnswers = async (req, res) => {
     const testResult = await TestResultModel.findById(testResultId);
 
     if (!testResult) {
-      return res.status(404).json({ error: 'Test wasnt done by you' });
+      return res.status(404).json({ message: 'You haven`t done this test' });
     }
     if (testResult.userId != req.userId) {
       return res.status(403).json({ message: 'You haven`t done this test' });
     }
-    const testId = testResult._doc.testId;
+    const testId = testResult.testId;
     const test = await TestModel.findById(testId);
 
     if (!test) {
@@ -306,6 +329,46 @@ export const deleteTest = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting test:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const updateTest = async (req, res) => {
+  try {
+    const testId = req.params.testId;
+    const { testName, showCorrectAnswers, questions, category, description, timeLimit } = req.body;
+
+    const updatedTest = await TestModel.findByIdAndUpdate(
+      testId,
+      {
+        testName,
+        showCorrectAnswers,
+        questions,
+        category,
+        description,
+        timeLimit,
+      },
+      { new: true },
+    );
+
+    questions.map(async (questionData) => {
+      const { questionType, questionText, options, correctAnswer } = questionData;
+
+      await QuestionModel.findByIdAndUpdate(
+        questionData._id,
+        {
+          questionType,
+          questionText,
+          options,
+          correctAnswer,
+        },
+        { new: true },
+      );
+    });
+
+    res.status(200).json(updatedTest);
+  } catch (error) {
+    console.error('Error updating test:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

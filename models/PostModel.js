@@ -6,6 +6,8 @@ const PostSchema = new mongoose.Schema(
     text: { type: String, required: true, unique: true },
     viewsCount: { type: Number, default: 0 },
     userId: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
+    updated: { type: Boolean, required: true, default: false },
+    forms: { type: Array, required: true },
     imageUrl: String,
   },
   {

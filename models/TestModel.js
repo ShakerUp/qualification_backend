@@ -9,6 +9,7 @@ const testSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     numberOfQuestions: { type: Number, required: true },
     timesDone: { type: Number, required: true },
+    timeLimit: { type: Number },
   },
   { timestamps: true },
 );

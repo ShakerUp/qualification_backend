@@ -31,10 +31,20 @@ export const questionValidation = [
 ];
 
 export const testValidation = [
-  body('testName', 'Некоретное имя теста').isLength({ min: 5 }).isString(),
+  body('testName', 'Некоретное имя теста').isLength({ min: 3 }).isString(),
   body('category', 'Введите номер категории').isInt(),
+  body('timeLimit', 'Введите количество минут').optional(),
   body('showCorrectAnswers', 'Некоректное значение').isBoolean(),
-  body('description', 'Некоректное описание теста').isString().optional(),
+  body('questions', 'Некорректное значение').custom((value) => {
+    if (!Array.isArray(value)) {
+      console.log('Поле "questions" должно быть массивом');
+    }
+    if (value.length < 1) {
+      console.log('Минимальная длина массива "questions" - 1');
+    }
+    return true;
+  }),
+  body('description', 'Некоректное описание теста').isString().isLength({ min: 5 }).optional(),
 ];
 
 export const postCreateValidation = [

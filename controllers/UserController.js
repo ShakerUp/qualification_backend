@@ -8,7 +8,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 
 export const register = async (req, res) => {
   try {
-    const { username, name, surname, password, role } = req.body;
+    const { username, name, surname, password, role, form } = req.body;
     const user = await UserModel.findOne({ username });
 
     if (user) {
@@ -16,7 +16,7 @@ export const register = async (req, res) => {
     }
 
     if (role === 'admin') {
-        return res.status(400).json({ error: 'Регистрация пользователей с ролью "admin" запрещена' });
+      return res.status(400).json({ error: 'Регистрация пользователей с ролью "admin" запрещена' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -27,6 +27,7 @@ export const register = async (req, res) => {
       surname,
       password: hashedPassword,
       role,
+      form,
     });
 
     const token = jwt.sign({ _id: newUser._id, role: newUser.role }, secretKey, {
@@ -55,7 +56,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: 'Неверные учетные данные' });
     }
 
-    const token = jwt.sign({ _id: user._id, role: user.role }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ _id: user._id, role: user.role }, secretKey, { expiresIn: '3h' });
     res.json({ token });
   } catch (err) {
     console.error('Ошибка при аутентификации пользователя', err);

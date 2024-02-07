@@ -2,7 +2,7 @@ import PostModel from '../models/PostModel.js';
 
 export const getAll = async (req, res) => {
   try {
-    const posts = await PostModel.find().populate('user').exec();
+    const posts = await PostModel.find().populate('user').exec().select('name surname').lean();
     res.json(posts);
   } catch (error) {
     res.status(500).json({
@@ -19,7 +19,12 @@ export const getTeacherPosts = async (req, res) => {
       return res.status(401).json({ error: 'Not authorized' });
     }
 
-    const posts = await PostModel.find({ userId }).populate('userId').exec();
+    const posts = await PostModel.find({ userId })
+      .populate({
+        path: 'userId',
+        select: 'name surname',
+      })
+      .exec();
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: 'No tests found for this teacher' });
@@ -32,15 +37,43 @@ export const getTeacherPosts = async (req, res) => {
   }
 };
 
+export const getUserPosts = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const userForm = req.userForm;
+    const userRole = req.userRole;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Not authorized' });
+    }
+    
+    const posts = await PostModel.find({ forms: { $in: userForm } }) // Use $in operator to match posts with forms in the user's form array
+      .populate({
+        path: 'userId',
+        select: 'name surname',
+      })
+      .exec();
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: 'No post was found for your form' });
+    }
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 export const getOne = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
     PostModel.findOneAndUpdate(
       {
         _id: postId,
       },
       {
-        $inc: { viewsCount: 1 },
+        $inc: { viewsCount: 0 },
       },
       {
         returnDocument: 'after',
@@ -78,7 +111,9 @@ export const create = async (req, res) => {
       text: req.body.text,
       imageUrl: req.body.imageUrl,
       userId: req.userId,
-      succes: true,
+      forms: req.body.forms,
+      updated: false,
+      success: true,
     });
 
     res.json(newPost);
@@ -90,34 +125,28 @@ export const create = async (req, res) => {
 
 export const remove = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
 
-    PostModel.findOneAndDelete({
+    const deletedPost = await PostModel.findOneAndDelete({
       _id: postId,
-    })
-      .then((doc) => {
-        if (!doc) {
-          res.status(404).json({ error: 'Unable to find post' });
-        }
+    });
 
-        res.json({ success: true });
-      })
-      .catch((error) => {
-        if (error) {
-          res.status(500).json({ error: 'Unable to delete post' });
-        }
-      });
+    if (!deletedPost) {
+      return res.status(404).json({ error: 'Unable to find post' });
+    }
+
+    res.json({ success: true });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
-      error: 'Unable to get posts',
+      error: 'Unable to delete post',
     });
   }
 };
 
 export const update = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const postId = req.params.postId;
 
     await PostModel.findOneAndUpdate(
       {
@@ -128,6 +157,8 @@ export const update = async (req, res) => {
         text: req.body.text,
         imageUrl: req.body.imageUrl,
         user: req.userId,
+        forms: req.body.forms,
+        updated: true,
       },
     );
 
